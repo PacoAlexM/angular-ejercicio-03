@@ -1,7 +1,17 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    @for (gif of gifs(); track gif) {
-        <gif-list-item [imageUrl]="gif" />
+    @for (list of gifSubList(); track list) {
+        <div class="grid gap-4">
+            @for (gif of list; track gif) {
+                <gif-list-item [imageUrl]="gif.url" />
+            }
+        </div>
     }
+
+    <!--
+    @for (gif of gifs(); track gif) {
+        <gif-list-item [imageUrl]="gif.url" />
+    }
+    -->
     <!--
     <gif-list-item />
     <gif-list-item />
