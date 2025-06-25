@@ -1,7 +1,8 @@
-import { Component, computed, inject } from '@angular/core';
-import { GifList } from '../../components/gif-list/gif-list';
+import { AfterViewInit, Component, computed, ElementRef, inject, viewChild } from '@angular/core';
+// import { GifList } from '../../components/gif-list/gif-list';
 import { GifService } from '../../services/gifs.service';
-import { Gif } from '../../interfaces/gif.interface';
+import { ScrollStateService } from 'src/app/shared/services/scroll-state.service';
+// import { Gif } from '../../interfaces/gif.interface';
 
 // const imageUrls: string[] = [
 //   "https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg",
@@ -20,21 +21,49 @@ import { Gif } from '../../interfaces/gif.interface';
 
 @Component({
   selector: 'app-trending',
-  imports: [GifList],
+  imports: [/*GifList*/],
   templateUrl: './trending.component.html',
 })
-export default class TrendingComponent {
+export default class TrendingComponent implements AfterViewInit {
   // gifs = imageUrls;
 
   gifService = inject(GifService);
+  scrollStateService = inject(ScrollStateService);
 
-  gifs = computed(() => {
-    const subList: Gif[][] = [];
-    const gifList: Gif[] = this.gifService.trendingGifs();
+  scrollDivRef = viewChild<ElementRef<HTMLDivElement>>('groupDiv');
 
-    for (let i: number = 0; i < gifList.length; i += 3)
-      subList.push(gifList.slice(i, i + 3));
+  ngAfterViewInit(): void {
+    const scrollDiv = this.scrollDivRef()?.nativeElement;
 
-    return subList;
-  });
+    if (!scrollDiv) return;
+
+    scrollDiv.scrollTop = this.scrollStateService.trendingScrollState();
+  }
+
+  onScroll(event: Event) {
+    const scrollDiv = this.scrollDivRef()?.nativeElement;
+
+    // console.log(scrollDiv);
+
+    if (!scrollDiv) return;
+
+    const scrollTop: number = scrollDiv.scrollTop;
+    const clientHeight: number = scrollDiv.clientHeight;
+    const scrollHeight: number = scrollDiv.scrollHeight;
+    const isAtBottom: boolean = scrollTop + clientHeight + 100 >= scrollHeight;
+
+    this.scrollStateService.trendingScrollState.set(scrollTop);
+
+    if (isAtBottom) this.gifService.loadTrendingGifs();
+  }
+
+  // gifs = computed<Gif[][]>(() => {
+  //   const subList: Gif[][] = [];
+  //   const gifList: Gif[] = this.gifService.trendingGifs();
+  //   
+  //   for (let i: number = 0; i < gifList.length; i += 3)
+  //     subList.push(gifList.slice(i, i + 3));
+  // 
+  //   return subList;
+  // });
 }
