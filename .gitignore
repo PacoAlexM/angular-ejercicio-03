@@ -40,3 +40,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Sensitive and keys collection files
+.env
+environment.development.ts
+environment.ts
